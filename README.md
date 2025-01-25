@@ -19,18 +19,25 @@ A feature-rich terminal simulator that runs entirely in your browser, providing 
 
 ## 📋 Available Commands
 
-- `clear` - Clear the terminal screen
-- `date` - Display current date and time with formatting options
-- `echo` - Display text with support for escape sequences
-- `help` - Show available commands
-- `neofetch` - Display system information in an aesthetic way
-- `periodic-table-cli` - Interactive periodic table explorer
-- `theme` - Change terminal appearance
-- `weather` - Show weather
-- `whoami` - Display temporary username
-- `exit` - Close the terminal session
+- [binary-clock](https://github.com/tom-on-the-internet/binary-clock) - Shows current time in binary
+- [cal](https://github.com/skeeto/scratch/blob/master/windows/cal.c) - Displays calendar
+- `clear` - Clears the terminal screen
+- `date` - Displays current date and time with formatting options
+- [daktilo](https://github.com/orhun/daktilo) - Plays typewriter sounds while typing
+- `echo` - Displays text with support for escape sequences
+- `exit` - Closes the terminal session
+- `factor` - Prints the prime factors of input
+- [fortune](https://github.com/bmc/fortunes) - Displays random quotes
+- `help` - Shows available commands
+- [neofetch](https://github.com/dylanaraps/neofetch) - Displays system information in an aesthetic way. Some ASCII art are from [fastfetch](https://github.com/fastfetch-cli/fastfetch). Weather and temperature information is fetched from [Open-Meteo](https://open-meteo.com/en/docs) using the approximate location collected from IP address via [GeoJS](https://www.geojs.io/)
+- [periodic-table-cli](https://github.com/spirometaxas/periodic-table-cli) - Interactive periodic table explorer
+- [sl](https://github.com/mtoyoda/sl) - Displays steam locomotive
+- [theme](https://gogh-co.github.io/Gogh/) - Changes terminal appearance
+- [weather](https://wttr.in/) - Shows weather
+- `whoami` - Displays temporary username
+- `yes` - Prints the input text repeatedly
 
-`date` `echo` `neofetch` `periodic-table-cli` `theme` and `weather` has additional options available that can be found by running `[command] --help`
+`binary-clock` `cal` `date` `daktilo`  `echo` `neofetch` `periodic-table-cli` `sl`  `theme` and `weather` has additional options available that can be found by running `[command] --help`
 
 ### More command support coming soon!
 

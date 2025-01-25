@@ -1934,21 +1934,21 @@ export const handleNeofetchCommand = async (commandArgs, header, firstRun, term,
 
 const formatUptime = (millisec) => {
   const seconds = Math.floor(millisec / 1000);
-  
+
   if (seconds < 60) {
     return `${seconds} seconds`;
   }
-  
+
   const minutes = Math.floor(seconds / 60);
   const remainSec = seconds % 60;
-  
+
   if (minutes < 60) {
     return `${minutes} min ${remainSec} sec`;
   }
-  
+
   const hours = Math.floor(minutes / 60);
   const remainMin = minutes % 60;
-  
+
   return `${hours} hr ${remainMin} min ${remainSec} sec`;
 };
 
@@ -1988,11 +1988,25 @@ export const handleNeofetch = async (
   };
 
   // Gather system info
-  const batteryInfo = await getBatteryInfo();
   const { timeZone, localTime } = getLocalTimeInfo();
   const theme = detectTheme();
-  const locationInfo = await getLocationInfo();
-  const weatherInfo = locationInfo.ip !== "Unknown" ? await getWeatherInfo(locationInfo.latitude, locationInfo.longitude) : null;
+
+  let batteryInfo = null;
+  let locationInfo = { ip: "Unknown", region: "Unknown", latitude: null, longitude: null };
+  let weatherInfo = null;
+
+  if (!isFieldDisabled("battery")) {
+    batteryInfo = await getBatteryInfo();
+  }
+  const needsLocation = !isFieldDisabled("ip") || !isFieldDisabled("region") || !isFieldDisabled("weather");
+
+  if (needsLocation) {
+    locationInfo = await getLocationInfo();
+
+    if (!isFieldDisabled("weather") && locationInfo.ip !== "Unknown") {
+      weatherInfo = await getWeatherInfo(locationInfo.latitude, locationInfo.longitude);
+    }
+  }
 
   const [username, hostname] = header.split("@");
 

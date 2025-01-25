@@ -11,6 +11,7 @@
   "dependencies": {
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/xterm": "^5.5.0",
+    "mathjs": "^14.0.1",
     "next": "^15.1.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

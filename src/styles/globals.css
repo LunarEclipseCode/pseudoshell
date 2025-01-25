@@ -48,3 +48,7 @@ body {
 .xterm-cursor-layer {
   visibility: visible !important;
 }
+
+.xterm-rows > div {
+  width: calc(100% + 1px) !important;
+}
