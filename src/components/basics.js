@@ -525,7 +525,7 @@ const handleDaktilo = (args) => {
 
     return initPreset(presetName);
   }
-
+  
   if (daktiloEnabled) {
     return {
       output: "Daktilo is already running. Run 'daktilo --close' to stop.",

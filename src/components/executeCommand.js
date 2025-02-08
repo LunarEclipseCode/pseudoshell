@@ -5,6 +5,7 @@ import { handlePeriodicTableData } from "./periodic-table-data";
 import { elements } from "../../public/elementData";
 import SteamLocomotive from "./steam-locomotive";
 import { displayHelp } from "./displayHelp";
+import { ls, cd, mkdir, resetFileSystem, rmdir, mv, cp, rm, cat, touch, stat } from "./filesystem";
 
 let currentTheme = "default";
 
@@ -17,6 +18,98 @@ export const executeCommand = async (input, terminal) => {
   const commandArgs = args.slice(1);
 
   switch (command) {
+    case "ls":
+      if (commandArgs[0] === "--help") {
+        return displayHelp(command, terminal);
+      }
+      const lsResult = await ls(commandArgs, terminal.term);
+      if (lsResult.trim() != "") {
+        terminal.write(lsResult);
+        return true;
+      }
+      return false;
+    case "mkdir":
+      if (commandArgs[0] === "--help") {
+        return displayHelp(command, terminal);
+      }
+      const mkdirResult = await mkdir(commandArgs);
+      if (mkdirResult != "") {
+        terminal.write(mkdirResult);
+        return true;
+      }
+      return false;
+    case "stat":
+      const statResult = await stat(commandArgs);
+      terminal.write(statResult);
+      return true;
+
+    case "mv":
+      if (commandArgs[0] === "--help") {
+        return displayHelp(command, terminal);
+      }
+      const mvResult = await mv(commandArgs, terminal);
+      if (mvResult) {
+        terminal.write(mvResult);
+        return true;
+      }
+      return false;
+    case "cd":
+      const cdResult = await cd(commandArgs[0]);
+      if (cdResult.output) {
+        terminal.write(cdResult.output + "\r\n");
+      }
+      return { newline: false, currentPath: cdResult.currentPath };
+    case "reset-files":
+      const resetResult = await resetFileSystem();
+      terminal.write(resetResult);
+      return { newline: true, currentPath: "~" };
+    case "rmdir":
+      if (commandArgs[0] === "--help") {
+        return displayHelp(command, terminal);
+      }
+      const rmdirResult = await rmdir(commandArgs);
+      if (rmdirResult != "") {
+        terminal.write(rmdirResult);
+        return true;
+      }
+      return false;
+    case "cp":
+      if (commandArgs[0] === "--help") {
+        return displayHelp(command, terminal);
+      }
+      const cpResult = await cp(commandArgs, terminal);
+      if (cpResult) {
+        terminal.write(cpResult);
+        return true;
+      }
+      return false;
+    case "rm":
+      if (commandArgs[0] === "--help") {
+        return displayHelp(command, terminal);
+      }
+      const rmResult = await rm(commandArgs, terminal);
+      if (rmResult) {
+        terminal.write(rmResult);
+        return true;
+      }
+      return false;
+    case "cat":
+      if (commandArgs[0] === "--help") {
+        return displayHelp(command, terminal);
+      }
+      const catResult = await cat(commandArgs, terminal.term);
+      terminal.write(catResult);
+      return false;
+    case "touch":
+      if (commandArgs[0] === "--help") {
+        return displayHelp(command, terminal);
+      }
+      const touchResult = await touch(commandArgs);
+      if (touchResult.trim() != "") {
+        terminal.write(touchResult);
+        return true;
+      }
+      return false;
     case "binary-clock":
       if (commandArgs[0] === "--help") {
         const clockHelpLines = ["Usage: binary-clock [options]", "Display current time in binary format", "", "Options:", "  --alt      Displays horizontal version of the clock"];
@@ -106,9 +199,7 @@ export const executeCommand = async (input, terminal) => {
       return false;
     case "theme":
       if (commandArgs[0] === "--help" || commandArgs.length === 0) {
-        const themeHelpLines = ["Usage: theme [THEME_NAME]", "", "Available themes:", "  default, monokai, dracula, solarized_dark, nord, onedark", "", "Examples:", "  theme onedark      Switch to the Dracula theme", ""];
-        terminal.write(themeHelpLines.join("\r\n"));
-        return true;
+        return displayHelp(command, terminal);
       } else {
         const themeName = commandArgs[0].toLowerCase();
         if (themes[themeName]) {

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Head from "next/head";
 import { executeCommand } from "../components/executeCommand";
+import { applyTheme } from "@/components/themes";
 
 const firstWords = ["lunar", "cosmic", "stellar", "astral", "nova", "nebula", "phoenix", "aurora", "comet", "eclipse", "galaxy", "meteor", "quasar", "starlit", "zenith"];
 
@@ -28,6 +29,7 @@ const TerminalComponent = () => {
   const redoStackRef = useRef([]);
   const terminalNameRef = useRef("");
   const promptLengthRef = useRef(0); // Length of the prompt "$ "
+  const directoryRef = useRef("~")
   const [viewportHeight, setViewportHeight] = useState("100vh");
   const resizeTimeoutRef = useRef(null);
   const isScrollingRef = useRef("");
@@ -41,7 +43,7 @@ const TerminalComponent = () => {
     // Generate terminal name
     terminalNameRef.current = generateTerminalName();
     // Update promptLength based on terminal name
-    promptLengthRef.current = terminalNameRef.current.length + 4; // +4 for ":~$ "
+    promptLengthRef.current = terminalNameRef.current.length + directoryRef.current.length + 3; // +3 for ":~$ " (~ is part of directory)
   }, []);
 
   useEffect(() => {
@@ -86,6 +88,7 @@ const TerminalComponent = () => {
         },
         allowProposedApi: true,
         copyOnSelect: true,
+        convertEol: true, // Equivalent of replacing \n with \r\n
       });
 
       const fitAddon = new FitAddon();
@@ -98,6 +101,7 @@ const TerminalComponent = () => {
       setTimeout(adjustScrollArea, 100);
 
       // Show neofetch when site is launched
+      applyTheme(term, "default")
       currentLineRef.current = "neofetch --disable ip region weather temperature battery";
       handleEnter(true);
       currentLineRef.current = "";
@@ -389,13 +393,11 @@ const TerminalComponent = () => {
         window.removeEventListener("resize", handleResize);
         hiddenInput.removeEventListener("input", handleHiddenInput);
         hiddenInput.removeEventListener("keydown", handleHiddenKeydown);
-        cleanupYesCommand();
+        if (visualViewportRef.current) {
+          visualViewportRef.current.removeEventListener("resize", handleViewportChange);
+          visualViewportRef.current.removeEventListener("scroll", handleViewportChange);
+        }
       };
-
-      if (visualViewportRef.current) {
-        visualViewportRef.current.removeEventListener("resize", handleViewportChange);
-        visualViewportRef.current.removeEventListener("scroll", handleViewportChange);
-      }
     };
 
     // Load xterm.css dynamically
@@ -558,7 +560,7 @@ const TerminalComponent = () => {
     }
   };
 
-  const getPrompt = () => "\x1b[0;92m" + terminalNameRef.current + "\x1b[0m" + ":" + "\x1b[94m~\x1b[0m" + "$ ";
+  const getPrompt = () => "\x1b[0;92m" + terminalNameRef.current + "\x1b[0m" + ":" + "\x1b[94m" + directoryRef.current + "\x1b[0m" + "$ ";
 
   const writePrompt = (newLine = true) => {
     const term = xtermRef.current;
@@ -781,11 +783,21 @@ const TerminalComponent = () => {
           pageLoadTime: pageLoadTime,
         });
 
-        lineBreak = result !== false;
+        if (result && result.currentPath) {
+          directoryRef.current = result.currentPath;
+          // Update prompt length based on new directory
+          promptLengthRef.current = terminalNameRef.current.length + directoryRef.current.length + 3;
+          lineBreak = result.newline !== false;
+        }
+        else {
+          lineBreak = result !== false;
+        }
+        
       } catch (error) {
         term.write(`Error: ${error.message}\r\n`);
       }
     }
+
 
     if(firstRun) {
       term.write("\r\n\x1b[0mRun 'help' to see the list of available commands.\x1b[0m\r\n");

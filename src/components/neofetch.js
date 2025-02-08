@@ -1428,154 +1428,30 @@ const ASCII_ART = {
 };
 
 import { UAParser } from "ua-parser-js";
+import { themes } from "./themes";
 
 const rgbAnsi = (r, g, b, isBackground = false) => `\u001B[${isBackground ? "48" : "38"};2;${r};${g};${b}m`;
 
-const createColorbar = (width = 3, offset = 0, theme = null) => {
-  const defaultColors = {
-    standard: [
-      [12, 12, 12], // Black
-      [197, 15, 31], // Red
-      [19, 161, 14], // Green
-      [193, 156, 0], // Yellow
-      [0, 55, 218], // Blue
-      [136, 23, 152], // Purple
-      [58, 150, 221], // Aqua
-      [204, 204, 204], // White
-    ],
-    bright: [
-      [118, 118, 118], // Gray
-      [231, 72, 86], // Bright Red
-      [22, 198, 12], // Bright Green
-      [249, 241, 165], // Bright Yellow
-      [59, 120, 255], // Bright Blue
-      [180, 0, 158], // Bright Purple
-      [97, 214, 214], // Bright Aqua
-      [242, 242, 242], // Bright White
-    ],
-  };
+function hexToRgb(hex) {
+  hex = hex.replace("#", "");
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  return [r, g, b];
+}
 
-  const themeColors = {
-    monokai: {
-      standard: [
-        [39, 40, 34], // Black
-        [249, 38, 114], // Red
-        [166, 226, 46], // Green
-        [244, 191, 117], // Yellow
-        [102, 217, 239], // Blue
-        [174, 129, 255], // Purple
-        [161, 239, 228], // Aqua
-        [248, 248, 242], // White
-      ],
-      bright: [
-        [117, 113, 94], // Gray
-        [249, 38, 114], // Bright Red
-        [166, 226, 46], // Bright Green
-        [244, 191, 117], // Bright Yellow
-        [102, 217, 239], // Bright Blue
-        [174, 129, 255], // Bright Purple
-        [161, 239, 228], // Bright Aqua
-        [249, 248, 245], // Bright White
-      ],
-    },
-    dracula: {
-      standard: [
-        [40, 42, 54], // Black
-        [255, 85, 85], // Red
-        [80, 250, 123], // Green
-        [241, 250, 140], // Yellow
-        [98, 114, 164], // Blue
-        [189, 147, 249], // Purple
-        [139, 233, 253], // Aqua
-        [248, 248, 242], // White
-      ],
-      bright: [
-        [68, 71, 90], // Gray
-        [255, 110, 110], // Bright Red
-        [105, 255, 148], // Bright Green
-        [241, 250, 140], // Bright Yellow
-        [123, 139, 189], // Bright Blue
-        [214, 172, 255], // Bright Purple
-        [164, 255, 255], // Bright Aqua
-        [255, 255, 255], // Bright White
-      ],
-    },
-    solarized_dark: {
-      standard: [
-        [0, 43, 54], // Black
-        [220, 50, 47], // Red
-        [133, 153, 0], // Green
-        [181, 137, 0], // Yellow
-        [38, 139, 210], // Blue
-        [108, 113, 196], // Purple
-        [42, 161, 152], // Aqua
-        [238, 232, 213], // White
-      ],
-      bright: [
-        [88, 110, 117], // Gray
-        [203, 75, 22], // Bright Red
-        [147, 161, 161], // Bright Green
-        [101, 123, 131], // Bright Yellow
-        [131, 148, 150], // Bright Blue
-        [108, 113, 196], // Bright Purple
-        [147, 161, 161], // Bright Aqua
-        [253, 246, 227], // Bright White
-      ],
-    },
-    nord: {
-      standard: [
-        [46, 52, 64], // Black
-        [191, 97, 106], // Red
-        [163, 190, 140], // Green
-        [235, 203, 139], // Yellow
-        [129, 161, 193], // Blue
-        [180, 142, 173], // Purple
-        [136, 192, 208], // Aqua
-        [229, 233, 240], // White
-      ],
-      bright: [
-        [76, 86, 106], // Gray
-        [191, 97, 106], // Bright Red
-        [163, 190, 140], // Bright Green
-        [235, 203, 139], // Bright Yellow
-        [129, 161, 193], // Bright Blue
-        [180, 142, 173], // Bright Purple
-        [143, 188, 187], // Bright Aqua
-        [236, 239, 244], // Bright White
-      ],
-    },
-    onedark: {
-      standard: [
-        [40, 44, 52], // Black
-        [224, 108, 117], // Red
-        [152, 195, 121], // Green
-        [229, 192, 123], // Yellow
-        [97, 175, 239], // Blue
-        [198, 120, 221], // Purple
-        [86, 182, 194], // Aqua
-        [171, 178, 191], // White
-      ],
-      bright: [
-        [92, 99, 112], // Gray
-        [224, 108, 117], // Bright Red
-        [152, 195, 121], // Bright Green
-        [229, 192, 123], // Bright Yellow
-        [97, 175, 239], // Bright Blue
-        [198, 120, 221], // Bright Purple
-        [86, 182, 194], // Bright Aqua
-        [200, 204, 212], // Bright White
-      ],
-    },
-  };
+const createColorbar = (width, themeName = "default") => {
+  const theme = themes[themeName] || themes.default;
 
-  // Select colors based on theme
-  const colors = theme && themeColors[theme] ? themeColors[theme] : defaultColors;
+  // Extract colors from the theme's config
+  const standardColors = [hexToRgb(theme.black), hexToRgb(theme.red), hexToRgb(theme.green), hexToRgb(theme.yellow), hexToRgb(theme.blue), hexToRgb(theme.magenta), hexToRgb(theme.cyan), hexToRgb(theme.white)];
 
-  // Create the colorbars using the selected colors
+  const brightColors = [hexToRgb(theme.brightBlack), hexToRgb(theme.brightRed), hexToRgb(theme.brightGreen), hexToRgb(theme.brightYellow), hexToRgb(theme.brightBlue), hexToRgb(theme.brightMagenta), hexToRgb(theme.brightCyan), hexToRgb(theme.brightWhite)];
+
+  // Create the colorbars using the converted colors
   return {
-    standard: colors.standard.map(([r, g, b]) => rgbAnsi(r, g, b, true) + " ".repeat(width) + "\x1b[0m").join(""),
-
-    bright: colors.bright.map(([r, g, b]) => rgbAnsi(r, g, b, true) + " ".repeat(width) + "\x1b[0m").join(""),
+    standard: standardColors.map(([r, g, b]) => rgbAnsi(r, g, b, true) + " ".repeat(width) + "\x1b[0m").join(""),
+    bright: brightColors.map(([r, g, b]) => rgbAnsi(r, g, b, true) + " ".repeat(width) + "\x1b[0m").join(""),
   };
 };
 
@@ -2069,7 +1945,7 @@ export const handleNeofetch = async (
 
   // Add color bars if enabled, info display is enabled, and not in stdout mode
   if (showInfo && showColorBlocks && !stdoutMode) {
-    const COLORBAR = createColorbar(blockWidth, actualColOffset, currentTheme);
+    const COLORBAR = createColorbar(blockWidth, currentTheme);
     const offsetSpaces = " ".repeat(actualColOffset);
     info.push("", offsetSpaces + COLORBAR.standard, offsetSpaces + COLORBAR.bright);
   }
